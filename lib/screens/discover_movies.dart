@@ -1,57 +1,86 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:convert';
 
-class DiscoverMovies extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+Future<Album> fetchAlbum() async {
+  final response = await http.get(Uri.parse(
+      'https://api.themoviedb.org/3/discover/movie?api_key=9ec3a5dc3d1c79366d75654dea61ebe3&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate'));
+
+  if (response.statusCode == 200) {
+    // If the server did return a 200 OK response,
+    // then parse the JSON.
+    debugPrint(response.body);
+    return Album.fromJson(jsonDecode(response.body));
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load album');
+  }
+}
+
+class Album {
+  final String poster;
+  final String title;
+
+  Album({
+    required this.poster,
+    required this.title,
+  });
+
+  factory Album.fromJson(Map<String, dynamic> json) {
+    return Album(
+      poster: json['poster_path'],
+      title: json['original_title'],
+    );
+  }
+}
+
+class DiscoverMovies extends StatefulWidget {
   const DiscoverMovies({Key? key}) : super(key: key);
 
   @override
+  _DiscoverMoviesState createState() => _DiscoverMoviesState();
+}
+
+class _DiscoverMoviesState extends State<DiscoverMovies> {
+  late Future<Album> futureAlbum;
+
+  @override
+  void initState() {
+    super.initState();
+    futureAlbum = fetchAlbum();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: ThemeData(
-        fontFamily: 'MadeTommy',
-        scaffoldBackgroundColor: const Color(0xFF1E2940),
-        primaryColor: const Color(0xFFF2BC1B),
-        textTheme: const TextTheme(bodyText2: TextStyle(color: Colors.white)),
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Color(0xFFF2BC1B),
-          unselectedIconTheme:
-              IconThemeData(color: Color(0xFF1E2940), size: 30, opacity: 0.5),
-          selectedIconTheme:
-              IconThemeData(color: Color(0xFF1E2940), size: 30, opacity: 1),
+    return ListView(
+      // ignore: prefer_const_literals_to_create_immutables
+      children: [
+        FutureBuilder<Album>(
+          future: futureAlbum,
+          builder: (context, json) {
+            if (json.hasData) {
+              return Text(json.data!.title);
+            } else if (json.hasError) {
+              return Text('${json.error}');
+            }
+
+            // By default, show a loading spinner.
+            return const CircularProgressIndicator();
+          },
         ),
-      ),
-      child: Scaffold(
-        bottomNavigationBar: BottomNavigationBar(
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.movie),
-              label: 'Movies',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.tv),
-              label: 'TV Shows',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
-            ),
-          ],
-        ),
-        body: ListView(
-          children: const [
-            Section(title: "Trending"),
-            Section(title: "Best of 2021"),
-            Section(title: "2000s"),
-            Section(title: "1990s"),
-            Section(title: "1980s"),
-            Section(title: "Retro"),
-            Section(title: "Family time"),
-            Section(title: "Great action"),
-            SizedBox(height: 20),
-          ],
-        ),
-      ),
+        const Section(title: "Trending"),
+        const Section(title: "Best of 2021"),
+        const Section(title: "2000s"),
+        const Section(title: "1990s"),
+        const Section(title: "1980s"),
+        const Section(title: "Retro"),
+        const Section(title: "Family time"),
+        const Section(title: "Great action"),
+        const SizedBox(height: 20),
+      ],
     );
   }
 }
