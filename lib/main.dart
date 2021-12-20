@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:proyecto_android/screens/discover_movies.dart';
+import 'package:proyecto_android/screens/discover_menu.dart';
 
 void main() {
   runApp(
@@ -19,38 +19,18 @@ class MyApp extends StatelessWidget {
     return Theme(
       data: ThemeData(
         fontFamily: 'MadeTommy',
-        scaffoldBackgroundColor: const Color(0xFF1E2940),
-        primaryColor: const Color(0xFFF2BC1B),
+        scaffoldBackgroundColor: const Color(0xFF1A1B1E),
+        primaryColor: const Color(0xFFEF774F),
         textTheme: const TextTheme(bodyText2: TextStyle(color: Colors.white)),
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Color(0xFFF2BC1B),
+          backgroundColor: Color(0xFF1A1B1E),
           unselectedIconTheme:
-              IconThemeData(color: Color(0xFF1E2940), size: 30, opacity: 0.5),
+              IconThemeData(color: Color(0xFFA3A5A5), size: 30, opacity: 0.5),
           selectedIconTheme:
-              IconThemeData(color: Color(0xFF1E2940), size: 30, opacity: 1),
+              IconThemeData(color: Color(0xFFEF774F), size: 30, opacity: 1),
         ),
       ),
-      child: Scaffold(
-        bottomNavigationBar: BottomNavigationBar(
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.movie),
-              label: 'Movies',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.tv),
-              label: 'TV Shows',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
-            ),
-          ],
-        ),
-        body: const DiscoverMovies(),
-      ),
+      child: const DiscoverMenu(),
     );
   }
 }

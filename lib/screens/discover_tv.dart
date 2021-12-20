@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:proyecto_android/screens/movie_details.dart';
 
 /* Future<Album> fetchAlbum() async {
   final response = await http.get(Uri.parse(
@@ -38,15 +37,15 @@ class Album {
   }
 } */
 
-class DiscoverMovies extends StatefulWidget {
-  const DiscoverMovies({Key? key}) : super(key: key);
+class DiscoverTV extends StatefulWidget {
+  const DiscoverTV({Key? key}) : super(key: key);
 
   @override
-  _DiscoverMoviesState createState() => _DiscoverMoviesState();
+  _DiscoverTVState createState() => _DiscoverTVState();
 }
 
-class _DiscoverMoviesState extends State<DiscoverMovies> {
-  /* late Future<Album> futureAlbum;
+class _DiscoverTVState extends State<DiscoverTV> {
+/*   late Future<Album> futureAlbum;
 
   @override
   void initState() {
@@ -78,7 +77,7 @@ class _DiscoverMoviesState extends State<DiscoverMovies> {
             const Padding(
               padding: EdgeInsets.fromLTRB(12.0, 30, 12, 12),
               child: Text(
-                "Trending",
+                "TV",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w500,
@@ -147,23 +146,12 @@ class Section extends StatelessWidget {
             children: [
               const SizedBox(width: 12),
               for (int i = 0; i < 20; i++)
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return const MovieDetails();
-                        },
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: 140,
-                    decoration: const BoxDecoration(
-                        color: Color(0xFFEF774F),
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    margin: const EdgeInsets.only(right: 20),
-                  ),
+                Container(
+                  width: 140,
+                  decoration: const BoxDecoration(
+                      color: Color(0xFFEF774F),
+                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  margin: const EdgeInsets.only(right: 20),
                 ),
             ],
           ),
