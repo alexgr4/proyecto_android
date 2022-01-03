@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 
 Future<Movie> fetchMovieDetails(int id) async {
   final response = await http.get(Uri.parse(
-      'https://api.themoviedb.org/3/movie/$id?api_key=9ec3a5dc3d1c79366d75654dea61ebe3&language=en-US'));
+      'https://api.themoviedb.org/3/tv/$id?api_key=9ec3a5dc3d1c79366d75654dea61ebe3&language=en-US'));
 
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
@@ -46,24 +46,24 @@ class Movie {
     }
     return Movie(
       poster: json['poster_path'],
-      title: json['title'],
+      title: json['name'],
       overview: json['overview'],
       rating: json['vote_average'],
-      releaseDate: json['release_date'],
+      releaseDate: json['first_air_date'],
       genres: json['genres'],
     );
   }
 }
 
-class MovieDetails extends StatefulWidget {
+class TVDetails extends StatefulWidget {
   final int id;
-  const MovieDetails({Key? key, required this.id}) : super(key: key);
+  const TVDetails({Key? key, required this.id}) : super(key: key);
 
   @override
-  _MovieDetailsState createState() => _MovieDetailsState();
+  _TVDetailsState createState() => _TVDetailsState();
 }
 
-class _MovieDetailsState extends State<MovieDetails> {
+class _TVDetailsState extends State<TVDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

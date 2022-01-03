@@ -4,37 +4,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:proyecto_android/screens/movie_details.dart';
-import 'package:proyecto_android/screens/movie_details_old.dart';
 
-Future<List<Movie>> fetchMovieList(int list) async {
-  late String url = '';
-  switch (list) {
-    case 1:
-      url =
-          'https://api.themoviedb.org/3/discover/movie?api_key=9ec3a5dc3d1c79366d75654dea61ebe3&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate';
-      break;
-    case 2:
-      url =
-          'https://api.themoviedb.org/3/discover/movie?api_key=9ec3a5dc3d1c79366d75654dea61ebe3&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&year=2000&with_watch_monetization_types=flatrate';
-      break;
-    case 3:
-      url =
-          'https://api.themoviedb.org/3/discover/movie?api_key=9ec3a5dc3d1c79366d75654dea61ebe3&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&year=2002&with_watch_monetization_types=flatrate';
-      break;
-    case 4:
-      url =
-          'https://api.themoviedb.org/3/discover/movie?api_key=9ec3a5dc3d1c79366d75654dea61ebe3&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&year=2004&with_watch_monetization_types=flatrate';
-      break;
-    case 5:
-      url =
-          'https://api.themoviedb.org/3/discover/movie?api_key=9ec3a5dc3d1c79366d75654dea61ebe3&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&year=2006&with_watch_monetization_types=flatrate';
-      break;
-    case 6:
-      url =
-          'https://api.themoviedb.org/3/discover/movie?api_key=9ec3a5dc3d1c79366d75654dea61ebe3&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&year=2008&with_watch_monetization_types=flatrate';
-      break;
-    default:
-  }
+Future<List<Movie>> fetchMovieList(String endpoint) async {
+  const String base =
+      'https://api.themoviedb.org/3/discover/movie?api_key=9ec3a5dc3d1c79366d75654dea61ebe3&language=en-US&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate';
+  final String endpoints = endpoint;
+  late String url = base + endpoints;
+
   final response = await http.get(Uri.parse(url));
 
   if (response.statusCode == 200) {
@@ -57,18 +33,24 @@ class Movie {
   final String poster;
   final String title;
   final int id;
+  final dynamic vote;
 
   Movie({
     required this.poster,
     required this.title,
     required this.id,
+    required this.vote,
   });
 
   factory Movie.fromJson(Map<String, dynamic> json) {
+    if (json['poster_path'] == null) {
+      json['poster_path'] = 'no_img';
+    }
     return Movie(
       poster: json['poster_path'],
       title: json['original_title'],
       id: json['id'],
+      vote: json['vote_average'],
     );
   }
 }
@@ -96,7 +78,7 @@ class DiscoverMovies extends StatelessWidget {
             SizedBox(
               height: 200,
               child: FutureBuilder<List<Movie>>(
-                future: fetchMovieList(1),
+                future: fetchMovieList(''),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return Text('${snapshot.error}');
@@ -112,14 +94,23 @@ class DiscoverMovies extends StatelessWidget {
                       for (int i = 0; i < 20; i++)
                         GestureDetector(
                           onTap: () {
-                            debugPrint(movies[i].poster);
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return MovieDetails(id: movies[i].id);
+                                },
+                              ),
+                            );
                           },
                           child: Container(
                             width: 300,
                             decoration: BoxDecoration(
                                 image: DecorationImage(
-                                  image: NetworkImage(
-                                      'https://image.tmdb.org/t/p/w500/${movies[i].poster}'),
+                                  image: movies[i].poster == 'no_img'
+                                      ? const NetworkImage(
+                                          'https://st4.depositphotos.com/14953852/22772/v/600/depositphotos_227725020-stock-illustration-no-image-available-icon-flat.jpg')
+                                      : NetworkImage(
+                                          'https://image.tmdb.org/t/p/w500/${movies[i].poster}'),
                                   fit: BoxFit.cover,
                                   alignment: Alignment.center,
                                 ),
@@ -135,35 +126,130 @@ class DiscoverMovies extends StatelessWidget {
             )
           ],
         ),
-        const Section(title: "Trending", list: 2),
         const Section(
-          title: "Best of 2021",
-          list: 3,
+          title: "Animation",
+          list: "&sort_by=popularity.desc&with_genres=16",
+        ),
+        const Section(
+          title: "All time comedy",
+          list:
+              "&sort_by=vote_average.desc&vote_average.gte=7&vote_count.gte=1000&with_original_language=en&with_genres=35&without_genres=18%2C28%2C16&release_date.lte=2009",
+        ),
+        const Section(
+          title: "Horror",
+          list:
+              "&sort_by=vote_average.desc&vote_average.gte=7&vote_count.gte=1000&with_original_language=en&with_genres=27",
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(12.0, 30, 12, 12),
+              child: Text(
+                "Most valued",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 450,
+              child: FutureBuilder<List<Movie>>(
+                future: fetchMovieList(
+                    '&sort_by=vote_average.desc&vote_average.gte=8&vote_count.gte=1000&with_original_language=en&without_genres=10749'),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('${snapshot.error}');
+                  }
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final movies = snapshot.data!;
+                  return ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      const SizedBox(width: 12),
+                      for (int i = 0; i < 20; i++)
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return MovieDetails(id: movies[i].id);
+                                },
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: 300,
+                            decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: movies[i].poster == 'no_img'
+                                      ? const NetworkImage(
+                                          'https://st4.depositphotos.com/14953852/22772/v/600/depositphotos_227725020-stock-illustration-no-image-available-icon-flat.jpg')
+                                      : NetworkImage(
+                                          'https://image.tmdb.org/t/p/w500/${movies[i].poster}'),
+                                  fit: BoxFit.cover,
+                                  alignment: Alignment.center,
+                                ),
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(10))),
+                            margin: const EdgeInsets.only(right: 20),
+                            child: Stack(
+                              alignment: AlignmentDirectional.bottomEnd,
+                              children: [
+                                Container(
+                                  height: 80,
+                                  width: 80,
+                                  decoration: const BoxDecoration(
+                                    borderRadius: BorderRadiusDirectional.only(
+                                      bottomEnd: Radius.circular(10),
+                                      topStart: Radius.circular(10),
+                                    ),
+                                    color: Color(0xFF1A1B1E),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      movies[i].vote.toString(),
+                                      style: const TextStyle(
+                                        color: Color(0xFFEF774F),
+                                        fontSize: 42,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
+            )
+          ],
+        ),
+        const Section(
+          title: "2010s",
+          list:
+              "&sort_by=popularity.desc&release_date.gte=2010&release_date.lte=2019",
         ),
         const Section(
           title: "2000s",
-          list: 4,
+          list:
+              "&sort_by=popularity.desc&release_date.gte=2000&release_date.lte=2009",
         ),
         const Section(
           title: "1990s",
-          list: 5,
+          list:
+              "&sort_by=popularity.desc&release_date.gte=1990&release_date.lte=1999",
         ),
         const Section(
-          title: "1980s",
-          list: 6,
-        ),
-        /* const Section(
           title: "Retro",
-          list: 7,
+          list: "&sort_by=popularity.desc&release_date.lte=1989",
         ),
-        const Section(
-          title: "Family time",
-          list: 8,
-        ),
-        const Section(
-          title: "Great action",
-          list: 9,
-        ), */
         const SizedBox(height: 20),
       ],
     );
@@ -172,7 +258,7 @@ class DiscoverMovies extends StatelessWidget {
 
 class Section extends StatelessWidget {
   final String title;
-  final int list;
+  final String list;
   const Section({
     Key? key,
     required this.title,
@@ -216,8 +302,7 @@ class Section extends StatelessWidget {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) {
-                              /* return MovieDetails(id: movies[i].id); */
-                              return const MovieDetailsOld();
+                              return MovieDetails(id: movies[i].id);
                             },
                           ),
                         );
@@ -226,8 +311,11 @@ class Section extends StatelessWidget {
                         width: 140,
                         decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: NetworkImage(
-                                  'https://image.tmdb.org/t/p/w500/${movies[i].poster}'),
+                              image: movies[i].poster == 'no_img'
+                                  ? const NetworkImage(
+                                      'https://st4.depositphotos.com/14953852/22772/v/600/depositphotos_227725020-stock-illustration-no-image-available-icon-flat.jpg')
+                                  : NetworkImage(
+                                      'https://image.tmdb.org/t/p/w500/${movies[i].poster}'),
                               fit: BoxFit.cover,
                               alignment: Alignment.center,
                             ),

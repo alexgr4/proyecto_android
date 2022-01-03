@@ -145,8 +145,7 @@ class _SearchState extends State<Search> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) {
-                                /* return MovieDetails(id: movies[index].id); */
-                                return const MovieDetailsOld();
+                                return MovieDetails(id: movies[index].id);
                               },
                             ),
                           );
