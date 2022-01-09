@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_android/screens/discover_tv.dart';
 import 'package:proyecto_android/screens/search.dart';
-
+import '../globals.dart' as globals;
 import 'discover_movies.dart';
 
 class DiscoverMenu extends StatefulWidget {
@@ -58,7 +58,7 @@ class _DiscoverMenuState extends State<DiscoverMenu> {
             ),
           );
         },
-        backgroundColor: const Color(0xFFEF774F),
+        backgroundColor: globals.orange,
         child: const Icon(Icons.search),
       ),
     );

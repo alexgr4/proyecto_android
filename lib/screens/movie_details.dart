@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import '../globals.dart' as globals;
 
 import 'dart:async';
 import 'dart:convert';
@@ -87,7 +88,7 @@ class _MovieDetailsState extends State<MovieDetails> {
           )
         ],
       ),
-      backgroundColor: const Color(0xFF1A1B1E),
+      backgroundColor: globals.darkGrey,
       body: FutureBuilder<Movie>(
           future: fetchMovieDetails(widget.id),
           builder: (context, snapshot) {
@@ -122,8 +123,8 @@ class _MovieDetailsState extends State<MovieDetails> {
                                 begin: FractionalOffset.topCenter,
                                 end: FractionalOffset.bottomCenter,
                                 colors: [
-                                  const Color(0xFF1A1B1E).withOpacity(0.0),
-                                  const Color(0xFF1A1B1E),
+                                  globals.darkGrey.withOpacity(0.0),
+                                  globals.darkGrey,
                                 ],
                                 stops: const [
                                   0.0,
@@ -137,8 +138,8 @@ class _MovieDetailsState extends State<MovieDetails> {
                                 begin: FractionalOffset.centerLeft,
                                 end: FractionalOffset.centerRight,
                                 colors: [
-                                  const Color(0xFF1A1B1E).withOpacity(0.0),
-                                  const Color(0xFF1A1B1E).withOpacity(0.3),
+                                  globals.darkGrey.withOpacity(0.0),
+                                  globals.darkGrey.withOpacity(0.3),
                                 ],
                                 stops: const [
                                   0.0,
@@ -152,8 +153,8 @@ class _MovieDetailsState extends State<MovieDetails> {
                                 begin: FractionalOffset.centerRight,
                                 end: FractionalOffset.centerLeft,
                                 colors: [
-                                  const Color(0xFF1A1B1E).withOpacity(0.0),
-                                  const Color(0xFF1A1B1E).withOpacity(0.3),
+                                  globals.darkGrey.withOpacity(0.0),
+                                  globals.darkGrey.withOpacity(0.3),
                                 ],
                                 stops: const [
                                   0.0,

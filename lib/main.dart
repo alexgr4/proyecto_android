@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_android/screens/discover_menu.dart';
+import '../globals.dart' as globals;
 
 void main() {
   runApp(
@@ -19,15 +20,15 @@ class MyApp extends StatelessWidget {
     return Theme(
       data: ThemeData(
         fontFamily: 'MadeTommy',
-        scaffoldBackgroundColor: const Color(0xFF1A1B1E),
-        primaryColor: const Color(0xFFEF774F),
+        scaffoldBackgroundColor: globals.darkGrey,
+        primaryColor: globals.orange,
         textTheme: const TextTheme(bodyText2: TextStyle(color: Colors.white)),
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Color(0xFF1A1B1E),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          backgroundColor: globals.darkGrey,
           unselectedIconTheme:
-              IconThemeData(color: Color(0xFFA3A5A5), size: 30, opacity: 0.5),
+              IconThemeData(color: globals.lightGrey, size: 30, opacity: 0.5),
           selectedIconTheme:
-              IconThemeData(color: Color(0xFFEF774F), size: 30, opacity: 1),
+              IconThemeData(color: globals.orange, size: 30, opacity: 1),
         ),
       ),
       child: const DiscoverMenu(),

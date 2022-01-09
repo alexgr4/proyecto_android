@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-
+import '../globals.dart' as globals;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:proyecto_android/screens/tv_details.dart';
@@ -203,18 +203,19 @@ class DiscoverTV extends StatelessWidget {
                                 Container(
                                   height: 80,
                                   width: 80,
-                                  decoration: const BoxDecoration(
-                                    borderRadius: BorderRadiusDirectional.only(
+                                  decoration: BoxDecoration(
+                                    borderRadius:
+                                        const BorderRadiusDirectional.only(
                                       bottomEnd: Radius.circular(10),
                                       topStart: Radius.circular(10),
                                     ),
-                                    color: Color(0xFF1A1B1E),
+                                    color: globals.darkGrey,
                                   ),
                                   child: Center(
                                     child: Text(
                                       movies[i].vote.toString(),
-                                      style: const TextStyle(
-                                        color: Color(0xFFEF774F),
+                                      style: TextStyle(
+                                        color: globals.orange,
                                         fontSize: 42,
                                         fontWeight: FontWeight.w500,
                                       ),

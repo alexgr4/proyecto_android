@@ -1,20 +1,32 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/painting.dart';
 
+import '../globals.dart' as globals;
+import 'package:proyecto_android/screens/tv_details.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:proyecto_android/screens/movie_details_old.dart';
 
 import 'movie_details.dart';
 
-Future<List<Movie>> fetchMovieList(String query) async {
+Future<List<Movie>> fetchMovieList(String query, bool movie) async {
   late dynamic response;
-  if (query == '') {
-    response = await http.get(Uri.parse(
-        'https://api.themoviedb.org/3/discover/movie?api_key=9ec3a5dc3d1c79366d75654dea61ebe3&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate'));
+  if (movie) {
+    if (query == '') {
+      response = await http.get(Uri.parse(
+          'https://api.themoviedb.org/3/discover/movie?api_key=9ec3a5dc3d1c79366d75654dea61ebe3&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate'));
+    } else {
+      response = await http.get(Uri.parse(
+          'https://api.themoviedb.org/3/search/movie?api_key=9ec3a5dc3d1c79366d75654dea61ebe3&language=en-US&query=$query&page=1&include_adult=false'));
+    }
   } else {
-    response = await http.get(Uri.parse(
-        'https://api.themoviedb.org/3/search/movie?api_key=9ec3a5dc3d1c79366d75654dea61ebe3&language=en-US&query=$query&page=1&include_adult=false'));
+    if (query == '') {
+      response = await http.get(Uri.parse(
+          'https://api.themoviedb.org/3/discover/tv?api_key=9ec3a5dc3d1c79366d75654dea61ebe3&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate'));
+    } else {
+      response = await http.get(Uri.parse(
+          'https://api.themoviedb.org/3/search/tv?api_key=9ec3a5dc3d1c79366d75654dea61ebe3&language=en-US&query=$query&page=1&include_adult=false'));
+    }
   }
 
   if (response.statusCode == 200) {
@@ -22,6 +34,8 @@ Future<List<Movie>> fetchMovieList(String query) async {
     // then parse the JSON.
     final json = jsonDecode(response.body);
     final results = json['results'];
+    globals.search_length = results.length;
+
     return results
         .map((movieJson) => Movie.fromJson(movieJson))
         .toList()
@@ -34,13 +48,11 @@ Future<List<Movie>> fetchMovieList(String query) async {
 }
 
 class Movie {
-  final String poster;
-  final String title;
+  final String? poster;
   final int id;
 
   Movie({
     required this.poster,
-    required this.title,
     required this.id,
   });
 
@@ -48,11 +60,7 @@ class Movie {
     if (json['poster_path'] == null) {
       json['poster_path'] = 'no_img';
     }
-    return Movie(
-      poster: json['poster_path'],
-      title: json['original_title'],
-      id: json['id'],
-    );
+    return Movie(poster: json['poster_path'], id: json['id']);
   }
 }
 
@@ -67,6 +75,8 @@ class _SearchState extends State<Search> {
   late TextEditingController controller;
 
   late String query;
+  bool isMovie = true;
+  String selected = 'movies';
 
   @override
   void initState() {
@@ -85,9 +95,9 @@ class _SearchState extends State<Search> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFFEF774F),
+        backgroundColor: globals.orange,
       ),
-      backgroundColor: const Color(0xFF1A1B1E),
+      backgroundColor: globals.darkGrey,
       body: Padding(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
         child: Column(
@@ -102,7 +112,7 @@ class _SearchState extends State<Search> {
                 });
                 debugPrint(query);
               },
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 /* border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(15))), */
                 /* focusedBorder: OutlineInputBorder(
@@ -110,18 +120,72 @@ class _SearchState extends State<Search> {
                 ), */
                 labelText: 'Search...',
                 filled: true,
-                fillColor: Color(0xFF27292e),
+                fillColor: globals.lighter,
                 prefixIcon: Icon(
                   Icons.search,
-                  color: Color(0xFFa3a5a5),
+                  color: globals.lightGrey,
                 ),
                 labelStyle: TextStyle(
-                  color: Color(0xFFa3a5a5),
+                  color: globals.lightGrey,
                 ),
               ),
             ),
+            Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selected = 'movies';
+                        isMovie = true;
+                      });
+                    },
+                    child: Container(
+                      color: selected == 'movies'
+                          ? globals.orange
+                          : Colors.transparent,
+                      child: const Center(
+                          child: Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Text(
+                          "Movies",
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.w500),
+                        ),
+                      )),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selected = 'shows';
+                        isMovie = false;
+                      });
+                    },
+                    child: Container(
+                      color: selected == 'shows'
+                          ? globals.orange
+                          : Colors.transparent,
+                      child: const Center(
+                          child: Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Text(
+                          "TV Shows",
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.w500),
+                        ),
+                      )),
+                    ),
+                  ),
+                ),
+              ],
+            ),
             FutureBuilder<List<Movie>>(
-              future: fetchMovieList(query),
+              future: fetchMovieList(query, isMovie),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return const Text(
@@ -139,16 +203,26 @@ class _SearchState extends State<Search> {
                     mainAxisSpacing: 15,
                     childAspectRatio: 0.8,
                     padding: const EdgeInsets.all(20),
-                    children: List.generate(20, (index) {
+                    children: List.generate(globals.search_length, (index) {
                       return GestureDetector(
                         onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return MovieDetails(id: movies[index].id);
-                              },
-                            ),
-                          );
+                          if (isMovie) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return MovieDetails(id: movies[index].id);
+                                },
+                              ),
+                            );
+                          } else {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return TVDetails(id: movies[index].id);
+                                },
+                              ),
+                            );
+                          }
                         },
                         child: Container(
                           decoration: BoxDecoration(
