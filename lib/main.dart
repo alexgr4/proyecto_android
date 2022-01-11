@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:proyecto_android/screens/discover_menu.dart';
 import '../globals.dart' as globals;
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // 1
+  await Firebase.initializeApp(); // 2
   runApp(
     const MaterialApp(
       home: MyApp(),
