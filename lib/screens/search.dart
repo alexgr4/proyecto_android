@@ -76,7 +76,6 @@ class _SearchState extends State<Search> {
 
   late String query;
   bool isMovie = true;
-  String selected = 'movies';
 
   @override
   void initState() {
@@ -137,14 +136,11 @@ class _SearchState extends State<Search> {
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
-                        selected = 'movies';
                         isMovie = true;
                       });
                     },
                     child: Container(
-                      color: selected == 'movies'
-                          ? globals.orange
-                          : Colors.transparent,
+                      color: isMovie ? globals.orange : Colors.transparent,
                       child: const Center(
                           child: Padding(
                         padding: EdgeInsets.all(10),
@@ -162,14 +158,11 @@ class _SearchState extends State<Search> {
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
-                        selected = 'shows';
                         isMovie = false;
                       });
                     },
                     child: Container(
-                      color: selected == 'shows'
-                          ? globals.orange
-                          : Colors.transparent,
+                      color: !isMovie ? globals.orange : Colors.transparent,
                       child: const Center(
                           child: Padding(
                         padding: EdgeInsets.all(10),
