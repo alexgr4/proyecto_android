@@ -119,7 +119,7 @@ class _SearchState extends State<Search> {
                 ), */
                 labelText: 'Search...',
                 filled: true,
-                fillColor: globals.lighter,
+                fillColor: globals.grey,
                 prefixIcon: Icon(
                   Icons.search,
                   color: globals.lightGrey,

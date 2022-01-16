@@ -98,7 +98,7 @@ class _ProfileState extends State<Profile> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        if (isMovie) {
+                        /* if (isMovie) {
                           setState(() {
                             myMedia.clear();
                             //Busca watched i movie i afegeix les id a la array myMedia
@@ -115,7 +115,7 @@ class _ProfileState extends State<Profile> {
                             myMedia.clear();
                             //Busca watched i tvshow i afegeix les id a la array myMedia
                           });
-                        }
+                        } */
                       },
                       child: const Chip(
                         label: Text('Watched'),

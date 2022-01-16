@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_android/screens/discover_tv.dart';
 import 'package:proyecto_android/screens/new_profile.dart';
-
+import 'package:proyecto_android/screens/old_profile.dart';
 import 'package:proyecto_android/screens/search.dart';
 import '../globals.dart' as globals;
 import 'discover_movies.dart';
@@ -19,7 +19,7 @@ class _DiscoverMenuState extends State<DiscoverMenu> {
   List<Widget> screens = [
     const DiscoverMovies(),
     const DiscoverTV(),
-    const Profile(),
+    const OldProfile(),
   ];
 
   @override
