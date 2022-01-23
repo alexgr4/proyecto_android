@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:proyecto_android/screens/LogIn/login.dart';
 import 'package:proyecto_android/screens/discover_menu.dart';
 import '../globals.dart' as globals;
 
@@ -35,7 +36,7 @@ class MyApp extends StatelessWidget {
               IconThemeData(color: globals.orange, size: 30, opacity: 1),
         ),
       ),
-      child: const DiscoverMenu(),
+      child: globals.userId != '' ? const DiscoverMenu() : const LogIn(),
     );
   }
 }

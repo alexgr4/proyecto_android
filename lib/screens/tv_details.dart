@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:proyecto_android/model/media.dart';
 import '../globals.dart' as globals;
 import 'dart:async';
 import 'dart:convert';
@@ -164,20 +165,10 @@ class TVDetails extends StatefulWidget {
 }
 
 class _TVDetailsState extends State<TVDetails> {
-  late bool watched;
-  late bool later;
-
-  @override
-  void initState() {
-    super.initState();
-    watched = false;
-    later = false;
-  }
-
   @override
   Widget build(BuildContext context) {
     final db = FirebaseFirestore.instance;
-    final media = db.collection("/users/ySilogyEnDkZinqTdUbL/media");
+    final media = db.collection("/users/${globals.userId}/media");
     late bool exist;
 
     setState(() {
@@ -191,428 +182,452 @@ class _TVDetailsState extends State<TVDetails> {
       }
     });
 
-    return FutureBuilder<TVShow>(
-        future: fetchMovieDetails(widget.id),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Text('${snapshot.error}');
-          }
+    return StreamBuilder(
+        stream: mediaSnapshots(globals.userId, widget.id),
+        builder: (
+          BuildContext context,
+          AsyncSnapshot<Media?> snapshot,
+        ) {
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
           }
-          final show = snapshot.data!;
-          return Theme(
-            data: ThemeData(fontFamily: 'MadeTommy'),
-            child: Scaffold(
-              appBar: AppBar(
-                backgroundColor: globals.orange,
-              ),
-              body: Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage(
-                            'https://image.tmdb.org/t/p/w500/${show.poster}'),
-                        fit: BoxFit.cover,
-                        alignment: Alignment.topCenter,
-                      ),
+          final listInfo = snapshot.data!;
+          return FutureBuilder<TVShow>(
+              future: fetchMovieDetails(widget.id),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Text('${snapshot.error}');
+                }
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final show = snapshot.data!;
+                return Theme(
+                  data: ThemeData(fontFamily: 'MadeTommy'),
+                  child: Scaffold(
+                    appBar: AppBar(
+                      backgroundColor: globals.orange,
                     ),
-                  ),
-                  SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                    body: Stack(
                       children: [
-                        BasicInfo(movies: show),
                         Container(
-                          color: globals.darkGrey,
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(15, 30, 15, 30),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: NetworkImage(
+                                  'https://image.tmdb.org/t/p/w500/${show.poster}'),
+                              fit: BoxFit.cover,
+                              alignment: Alignment.topCenter,
+                            ),
+                          ),
+                        ),
+                        SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              BasicInfo(movies: show),
+                              Container(
+                                color: globals.darkGrey,
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(15, 30, 15, 30),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          if (!exist) {
-                                            media.doc('S-${widget.id}').set({
-                                              'List': ['Watched'],
-                                              'Type': 'Show',
-                                              'id': widget.id,
-                                              'Fav': false,
-                                            });
-                                          } else if (exist && !watched) {
-                                            media.doc('S-${widget.id}').update({
-                                              'List': FieldValue.arrayUnion(
-                                                  ['Watched']),
-                                            });
-                                          } else {
-                                            media.doc('S-${widget.id}').update({
-                                              'List': FieldValue.arrayRemove(
-                                                  ['Watched']),
-                                            });
-                                          }
-
-                                          setState(() {
-                                            watched = !watched;
-                                            /* if (plan == true) {
-                                              plan = !plan;
-                                              watched = !watched;
-                                            } else {
-                                              watched = !watched;
-                                            } */
-                                          });
-                                        },
-                                        child: SizedBox(
-                                          width: 100,
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(
-                                                Icons.remove_red_eye,
-                                                size: 32,
-                                                color: watched
-                                                    ? globals.orange
-                                                    : globals.lightGrey,
-                                              ),
-                                              Text(
-                                                'Watched',
-                                                style: TextStyle(
-                                                  color: watched
-                                                      ? globals.orange
-                                                      : globals.lightGrey,
-                                                  fontWeight: FontWeight.w500,
+                                      Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () {
+                                                if (!exist) {
+                                                  media
+                                                      .doc('S-${widget.id}')
+                                                      .set({
+                                                    'list': ['Watched'],
+                                                    'type': 'Show',
+                                                    'id': widget.id,
+                                                    'fav': false,
+                                                  });
+                                                } else if (exist &&
+                                                    !listInfo.isWatched) {
+                                                  media
+                                                      .doc('S-${widget.id}')
+                                                      .update({
+                                                    'list':
+                                                        FieldValue.arrayUnion(
+                                                            ['Watched']),
+                                                  });
+                                                } else {
+                                                  media
+                                                      .doc('S-${widget.id}')
+                                                      .update({
+                                                    'list':
+                                                        FieldValue.arrayRemove(
+                                                            ['Watched']),
+                                                  });
+                                                }
+                                              },
+                                              child: SizedBox(
+                                                width: 100,
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.remove_red_eye,
+                                                      size: 32,
+                                                      color: listInfo.isWatched
+                                                          ? globals.orange
+                                                          : globals.lightGrey,
+                                                    ),
+                                                    Text(
+                                                      'Watched',
+                                                      style: TextStyle(
+                                                        color: listInfo
+                                                                .isWatched
+                                                            ? globals.orange
+                                                            : globals.lightGrey,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      GestureDetector(
-                                        onTap: () {
-                                          if (!exist) {
-                                            media.doc('S-${widget.id}').set({
-                                              'List': ['Later'],
-                                              'Type': 'Show',
-                                              'id': widget.id,
-                                              'Fav': false,
-                                            });
-                                          } else if (exist && !later) {
-                                            media.doc('S-${widget.id}').update({
-                                              'List': FieldValue.arrayUnion(
-                                                  ['Later']),
-                                            });
-                                          } else {
-                                            media.doc('S-${widget.id}').update({
-                                              'List': FieldValue.arrayRemove(
-                                                  ['Later']),
-                                            });
-                                          }
-
-                                          setState(() {
-                                            later = !later;
-                                            /* if (watched == true) {
-                                              later = !later;
-                                              watched = !watched;
-                                            } else {
-                                              later = !later;
-                                            } */
-                                          });
-                                        },
-                                        child: SizedBox(
-                                          width: 100,
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(
-                                                Icons.watch_later,
-                                                size: 32,
-                                                color: later
-                                                    ? globals.orange
-                                                    : globals.lightGrey,
-                                              ),
-                                              Text(
-                                                'Watch later',
-                                                style: TextStyle(
-                                                  color: later
-                                                      ? globals.orange
-                                                      : globals.lightGrey,
-                                                  fontWeight: FontWeight.w500,
+                                            ),
+                                            GestureDetector(
+                                              onTap: () {
+                                                if (!exist) {
+                                                  media
+                                                      .doc('S-${widget.id}')
+                                                      .set({
+                                                    'list': ['Later'],
+                                                    'type': 'Show',
+                                                    'id': widget.id,
+                                                    'fav': false,
+                                                  });
+                                                } else if (exist &&
+                                                    !listInfo.isLater) {
+                                                  media
+                                                      .doc('S-${widget.id}')
+                                                      .update({
+                                                    'list':
+                                                        FieldValue.arrayUnion(
+                                                            ['Later']),
+                                                  });
+                                                } else {
+                                                  media
+                                                      .doc('S-${widget.id}')
+                                                      .update({
+                                                    'list':
+                                                        FieldValue.arrayRemove(
+                                                            ['Later']),
+                                                  });
+                                                }
+                                              },
+                                              child: SizedBox(
+                                                width: 100,
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.watch_later,
+                                                      size: 32,
+                                                      color: listInfo.isLater
+                                                          ? globals.orange
+                                                          : globals.lightGrey,
+                                                    ),
+                                                    Text(
+                                                      'Watch later',
+                                                      style: TextStyle(
+                                                        color: listInfo.isLater
+                                                            ? globals.orange
+                                                            : globals.lightGrey,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 100,
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: const [
-                                            Icon(
-                                              Icons.add,
-                                              size: 32,
-                                              color: Colors.white,
                                             ),
-                                            Text(
-                                              'Add to list...',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w500,
+                                            SizedBox(
+                                              width: 100,
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: const [
+                                                  Icon(
+                                                    Icons.add,
+                                                    size: 32,
+                                                    color: Colors.white,
+                                                  ),
+                                                  Text(
+                                                    'Add to list...',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-                                          ],
+                                          ]),
+                                      const SizedBox(
+                                        height: 30,
+                                      ),
+                                      Text(
+                                        show.overview,
+                                        textAlign: TextAlign.start,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
                                         ),
                                       ),
-                                    ]),
-                                const SizedBox(
-                                  height: 30,
-                                ),
-                                Text(
-                                  show.overview,
-                                  textAlign: TextAlign.start,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
+                                      const SizedBox(
+                                        height: 30,
+                                      ),
+                                      FutureBuilder<List<Cast>>(
+                                          future: fetchCasting(widget.id),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.hasError) {
+                                              return Text('${snapshot.error}');
+                                            }
+                                            if (!snapshot.hasData) {
+                                              return const Center(
+                                                  child:
+                                                      CircularProgressIndicator());
+                                            }
+                                            final casting = snapshot.data!;
+                                            return Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const Text(
+                                                  'Cast',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 20,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 15,
+                                                ),
+                                                SizedBox(
+                                                  height: 280,
+                                                  child: ListView(
+                                                    scrollDirection:
+                                                        Axis.horizontal,
+                                                    children: [
+                                                      for (int i = 0;
+                                                          i <
+                                                              globals
+                                                                  .cast_length;
+                                                          i++)
+                                                        Column(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Container(
+                                                              width: 140,
+                                                              height: 200,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                      image:
+                                                                          DecorationImage(
+                                                                        image: casting[i].picture ==
+                                                                                'no_img'
+                                                                            ? const NetworkImage('https://st4.depositphotos.com/14953852/22772/v/600/depositphotos_227725020-stock-illustration-no-image-available-icon-flat.jpg')
+                                                                            : NetworkImage('https://image.tmdb.org/t/p/w500/${casting[i].picture}'),
+                                                                        fit: BoxFit
+                                                                            .cover,
+                                                                        alignment:
+                                                                            Alignment.center,
+                                                                      ),
+                                                                      borderRadius: const BorderRadius
+                                                                              .all(
+                                                                          Radius.circular(
+                                                                              10))),
+                                                              margin:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                      right:
+                                                                          20),
+                                                            ),
+                                                            const SizedBox(
+                                                              height: 15,
+                                                            ),
+                                                            SizedBox(
+                                                              width: 150,
+                                                              child: Text(
+                                                                casting[i].name,
+                                                                style: const TextStyle(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500),
+                                                              ),
+                                                            ),
+                                                            SizedBox(
+                                                              width: 150,
+                                                              child: Text(
+                                                                casting[i]
+                                                                    .character,
+                                                                style: TextStyle(
+                                                                    color: globals
+                                                                        .lightGrey,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w200),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          }),
+                                      if (show.seasons.isNotEmpty)
+                                        for (int i = 1;
+                                            i < show.seasons.length;
+                                            i++)
+                                          Container(
+                                            margin: const EdgeInsets.symmetric(
+                                                vertical: 5),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                                color: globals.grey),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.max,
+                                                children: [
+                                                  Text(
+                                                    show.seasons[i]['name'],
+                                                    style: const TextStyle(
+                                                        color: Colors.white),
+                                                  ),
+                                                  const Spacer(),
+                                                  Text(
+                                                      '${show.seasons[i]['episode_count'].toString()} episodes',
+                                                      style: const TextStyle(
+                                                          color: Colors.white))
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                      const SizedBox(
+                                        height: 30,
+                                      ),
+                                      /* if (globals.streaming_length != 0) */
+                                      FutureBuilder<List<Streaming>>(
+                                          future: fetchStreaming(widget.id),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.hasError) {
+                                              return Text('${snapshot.error}');
+                                            }
+                                            if (!snapshot.hasData) {
+                                              return const Center(
+                                                  child:
+                                                      CircularProgressIndicator());
+                                            }
+                                            final streaming = snapshot.data!;
+                                            return Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const Text(
+                                                  'Streaming on...',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 20,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                                const SizedBox(
+                                                  height: 15,
+                                                ),
+                                                SizedBox(
+                                                  height: 150,
+                                                  child: ListView(
+                                                    scrollDirection:
+                                                        Axis.horizontal,
+                                                    children: [
+                                                      for (int i = 0;
+                                                          i <
+                                                              globals
+                                                                  .streaming_length;
+                                                          i++)
+                                                        Column(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Container(
+                                                              width: 100,
+                                                              height: 100,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                      image:
+                                                                          DecorationImage(
+                                                                        image: streaming[i].picture ==
+                                                                                'no_img'
+                                                                            ? const NetworkImage('https://st4.depositphotos.com/14953852/22772/v/600/depositphotos_227725020-stock-illustration-no-image-available-icon-flat.jpg')
+                                                                            : NetworkImage('https://image.tmdb.org/t/p/w500/${streaming[i].picture}'),
+                                                                        fit: BoxFit
+                                                                            .cover,
+                                                                        alignment:
+                                                                            Alignment.center,
+                                                                      ),
+                                                                      borderRadius: const BorderRadius
+                                                                              .all(
+                                                                          Radius.circular(
+                                                                              10))),
+                                                              margin:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                      right:
+                                                                          20),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          }),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(
-                                  height: 30,
-                                ),
-                                FutureBuilder<List<Cast>>(
-                                    future: fetchCasting(widget.id),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasError) {
-                                        return Text('${snapshot.error}');
-                                      }
-                                      if (!snapshot.hasData) {
-                                        return const Center(
-                                            child: CircularProgressIndicator());
-                                      }
-                                      final casting = snapshot.data!;
-                                      return Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const Text(
-                                            'Cast',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: 15,
-                                          ),
-                                          SizedBox(
-                                            height: 280,
-                                            child: ListView(
-                                              scrollDirection: Axis.horizontal,
-                                              children: [
-                                                for (int i = 0;
-                                                    i < globals.cast_length;
-                                                    i++)
-                                                  Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Container(
-                                                        width: 140,
-                                                        height: 200,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                                image:
-                                                                    DecorationImage(
-                                                                  image: casting[i]
-                                                                              .picture ==
-                                                                          'no_img'
-                                                                      ? const NetworkImage(
-                                                                          'https://st4.depositphotos.com/14953852/22772/v/600/depositphotos_227725020-stock-illustration-no-image-available-icon-flat.jpg')
-                                                                      : NetworkImage(
-                                                                          'https://image.tmdb.org/t/p/w500/${casting[i].picture}'),
-                                                                  fit: BoxFit
-                                                                      .cover,
-                                                                  alignment:
-                                                                      Alignment
-                                                                          .center,
-                                                                ),
-                                                                borderRadius:
-                                                                    const BorderRadius
-                                                                            .all(
-                                                                        Radius.circular(
-                                                                            10))),
-                                                        margin: const EdgeInsets
-                                                            .only(right: 20),
-                                                      ),
-                                                      const SizedBox(
-                                                        height: 15,
-                                                      ),
-                                                      SizedBox(
-                                                        width: 150,
-                                                        child: Text(
-                                                          casting[i].name,
-                                                          style: const TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500),
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                        width: 150,
-                                                        child: Text(
-                                                          casting[i].character,
-                                                          style: TextStyle(
-                                                              color: globals
-                                                                  .lightGrey,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w200),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    }),
-                                if (show.seasons.isNotEmpty)
-                                  for (int i = 1; i < show.seasons.length; i++)
-                                    Container(
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 5),
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                          color: globals.grey),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          children: [
-                                            Text(
-                                              show.seasons[i]['name'],
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                            const Spacer(),
-                                            Text(
-                                                '${show.seasons[i]['episode_count'].toString()} episodes',
-                                                style: const TextStyle(
-                                                    color: Colors.white))
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                const SizedBox(
-                                  height: 30,
-                                ),
-                                /* if (globals.streaming_length != 0) */
-                                FutureBuilder<List<Streaming>>(
-                                    future: fetchStreaming(widget.id),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasError) {
-                                        return Text('${snapshot.error}');
-                                      }
-                                      if (!snapshot.hasData) {
-                                        return const Center(
-                                            child: CircularProgressIndicator());
-                                      }
-                                      final streaming = snapshot.data!;
-                                      return Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const Text(
-                                            'Streaming on...',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: 15,
-                                          ),
-                                          SizedBox(
-                                            height: 150,
-                                            child: ListView(
-                                              scrollDirection: Axis.horizontal,
-                                              children: [
-                                                for (int i = 0;
-                                                    i <
-                                                        globals
-                                                            .streaming_length;
-                                                    i++)
-                                                  Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Container(
-                                                        width: 100,
-                                                        height: 100,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                                image:
-                                                                    DecorationImage(
-                                                                  image: streaming[i]
-                                                                              .picture ==
-                                                                          'no_img'
-                                                                      ? const NetworkImage(
-                                                                          'https://st4.depositphotos.com/14953852/22772/v/600/depositphotos_227725020-stock-illustration-no-image-available-icon-flat.jpg')
-                                                                      : NetworkImage(
-                                                                          'https://image.tmdb.org/t/p/w500/${streaming[i].picture}'),
-                                                                  fit: BoxFit
-                                                                      .cover,
-                                                                  alignment:
-                                                                      Alignment
-                                                                          .center,
-                                                                ),
-                                                                borderRadius:
-                                                                    const BorderRadius
-                                                                            .all(
-                                                                        Radius.circular(
-                                                                            10))),
-                                                        margin: const EdgeInsets
-                                                            .only(right: 20),
-                                                      ),
-                                                    ],
-                                                  ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    }),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
-          );
+                );
+              });
         });
   }
 }
