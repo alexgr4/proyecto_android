@@ -1,13 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/painting.dart';
+import 'package:proyecto_android/screens/movie_details.dart';
 
 import '../globals.dart' as globals;
 import 'package:proyecto_android/screens/tv_details.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
-import 'movie_details.dart';
 
 Future<List<Movie>> fetchMovieList(String query, bool movie) async {
   late dynamic response;

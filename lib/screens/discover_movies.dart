@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:proyecto_android/screens/movie_details.dart';
+
 import '../globals.dart' as globals;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:proyecto_android/screens/movie_details.dart';
 
 Future<List<Movie>> fetchMovieList(String endpoint) async {
   const String base =

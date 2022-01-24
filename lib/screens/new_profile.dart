@@ -6,10 +6,10 @@ import 'package:flutter/painting.dart';
 import 'package:http/http.dart' as http;
 import 'package:proyecto_android/model/media.dart';
 import 'package:proyecto_android/model/user.dart';
+import 'package:proyecto_android/screens/movie_details.dart';
 import 'package:proyecto_android/screens/tv_details.dart';
 
 import '../globals.dart' as globals;
-import 'movie_details.dart';
 
 Future<APIMedia> fetchMovieList(int id, bool movie) async {
   late dynamic response;
@@ -201,7 +201,7 @@ class _ProfileState extends State<Profile> {
                     mainAxisSpacing: 15,
                     childAspectRatio: 0.8,
                     padding: const EdgeInsets.all(20),
-                    children: list.where((m) => m.isMovie == isMovie).map((m) {
+                    children: media.where((m) => m.isMovie == isMovie).map((m) {
                       return FutureBuilder<APIMedia>(
                           future: fetchMovieList(m.id, m.isMovie),
                           builder: (context, snapshot) {
