@@ -73,8 +73,27 @@ class _ProfileState extends State<Profile> {
         AsyncSnapshot<List<Media>> snapshot,
       ) {
         if (!snapshot.hasData) {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: globals.orange,
+              title: StreamBuilder(
+                stream: userSnapshots(globals.userId),
+                builder: (
+                  BuildContext context,
+                  AsyncSnapshot<User?> snapshot,
+                ) {
+                  if (!snapshot.hasData) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  final docSnapshot = snapshot.data;
+
+                  return Text(docSnapshot!.uname);
+                },
+              ),
+              centerTitle: true,
+            ),
           );
         }
         final media = snapshot.data!;
@@ -113,6 +132,7 @@ class _ProfileState extends State<Profile> {
                         setState(() {
                           list.clear();
                         });
+
                         media.map((m) {
                           if (m.lists.contains('Watched')) {
                             setState(() {

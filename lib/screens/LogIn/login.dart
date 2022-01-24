@@ -13,7 +13,8 @@ class LogIn extends StatefulWidget {
 }
 
 class _LogInState extends State<LogIn> {
-  final _formKey = GlobalKey<FormState>();
+  final _formKeyLogIn = GlobalKey<FormState>();
+  final _formKeySignUp = GlobalKey<FormState>();
 
   String email = '';
   String password = '';
@@ -51,8 +52,24 @@ class _LogInState extends State<LogIn> {
           Padding(
             padding: const EdgeInsets.all(50),
             child: Center(
-              child: action == 'log' ? logIn() : signUp(),
-            ),
+                child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 300,
+                  height: 100,
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/listit-logo.png'),
+                      fit: BoxFit.cover,
+                      alignment: Alignment.center,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+                action == 'log' ? logIn() : signUp(),
+              ],
+            )),
           ),
         ],
       ),
@@ -61,12 +78,14 @@ class _LogInState extends State<LogIn> {
 
   Form logIn() {
     return Form(
-        key: _formKey,
+        key: _formKeyLogIn,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextFormField(
               decoration: InputDecoration(
+                  filled: true,
+                  fillColor: globals.darkGrey,
                   hintText: 'Enter your email',
                   hintStyle: TextStyle(color: globals.lightGrey)),
               style: const TextStyle(color: Colors.white),
@@ -82,6 +101,8 @@ class _LogInState extends State<LogIn> {
             ),
             TextFormField(
               decoration: InputDecoration(
+                  filled: true,
+                  fillColor: globals.darkGrey,
                   hintText: 'Enter your password',
                   hintStyle: TextStyle(color: globals.lightGrey)),
               style: const TextStyle(color: Colors.white),
@@ -94,7 +115,7 @@ class _LogInState extends State<LogIn> {
                 });
               },
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
                     primary: globals.orange,
@@ -103,7 +124,7 @@ class _LogInState extends State<LogIn> {
                       borderRadius: BorderRadius.circular(20.0),
                     )),
                 onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
+                  if (_formKeyLogIn.currentState!.validate()) {
                     debugPrint(email);
                     debugPrint(password);
                     userSnapshots(email);
@@ -130,24 +151,26 @@ class _LogInState extends State<LogIn> {
                   }
                 },
                 child: const Text('Log In')),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                const Text('You don\'t have an account yet?'),
-                const Spacer(),
-                InkWell(
-                  child: Text(
-                    'Register',
-                    style: TextStyle(
-                        color: globals.orange, fontWeight: FontWeight.w500),
-                  ),
-                  onTap: () {
-                    setState(() {
-                      action = 'sign';
-                    });
-                  },
-                )
-              ],
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  const Text('You don\'t have an account yet?'),
+                  const Spacer(),
+                  InkWell(
+                    child: Text(
+                      'Register',
+                      style: TextStyle(
+                          color: globals.orange, fontWeight: FontWeight.w500),
+                    ),
+                    onTap: () {
+                      setState(() {
+                        action = 'sign';
+                      });
+                    },
+                  )
+                ],
+              ),
             )
           ],
         ));
@@ -156,14 +179,16 @@ class _LogInState extends State<LogIn> {
   Form signUp() {
     final db = FirebaseFirestore.instance;
     final users = db.collection("/users");
-    final loggedUser = db.collection("/users/${globals.userId}");
+
     return Form(
-        key: _formKey,
+        key: _formKeySignUp,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextFormField(
               decoration: InputDecoration(
+                  filled: true,
+                  fillColor: globals.darkGrey,
                   hintText: 'Set your username',
                   hintStyle: TextStyle(color: globals.lightGrey)),
               style: const TextStyle(color: Colors.white),
@@ -179,6 +204,8 @@ class _LogInState extends State<LogIn> {
             ),
             TextFormField(
               decoration: InputDecoration(
+                  filled: true,
+                  fillColor: globals.darkGrey,
                   hintText: 'Enter your email',
                   hintStyle: TextStyle(color: globals.lightGrey)),
               style: const TextStyle(color: Colors.white),
@@ -194,6 +221,8 @@ class _LogInState extends State<LogIn> {
             ),
             TextFormField(
               decoration: InputDecoration(
+                  filled: true,
+                  fillColor: globals.darkGrey,
                   hintText: 'Create your 6+ characters password',
                   hintStyle: TextStyle(color: globals.lightGrey)),
               style: const TextStyle(color: Colors.white),
@@ -206,7 +235,7 @@ class _LogInState extends State<LogIn> {
                 });
               },
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
             ElevatedButton(
                 style: ElevatedButton.styleFrom(
                     primary: globals.orange,
@@ -215,7 +244,7 @@ class _LogInState extends State<LogIn> {
                       borderRadius: BorderRadius.circular(20.0),
                     )),
                 onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
+                  if (_formKeySignUp.currentState!.validate()) {
                     users.doc(email).set({
                       'username': username,
                       'email': email,
@@ -224,11 +253,15 @@ class _LogInState extends State<LogIn> {
                     globals.userId = email;
                     //añadir colección 'media'
                     /* FirebaseFirestore.instance
-                        .collection("users/${globals.userId}")
-                        .add({
-                      "key":
-                          'media' //your data which will be added to the collection and collection will be created after this
+                        .collection("users/${globals.userId}/media")
+                        .doc('S-1420')
+                        .set({
+                      'type': 'Show',
+                      'id': '1420',
+                      'list': [],
+                      'fav': false
                     }); */
+
                     globals.userId = email;
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -240,24 +273,26 @@ class _LogInState extends State<LogIn> {
                   }
                 },
                 child: const Text('Sign Up')),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                const Text('You already have an account?'),
-                const Spacer(),
-                InkWell(
-                  child: Text(
-                    'Log in',
-                    style: TextStyle(
-                        color: globals.orange, fontWeight: FontWeight.w500),
-                  ),
-                  onTap: () {
-                    setState(() {
-                      action = 'log';
-                    });
-                  },
-                )
-              ],
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  const Text('You already have an account?'),
+                  const Spacer(),
+                  InkWell(
+                    child: Text(
+                      'Log in',
+                      style: TextStyle(
+                          color: globals.orange, fontWeight: FontWeight.w500),
+                    ),
+                    onTap: () {
+                      setState(() {
+                        action = 'log';
+                      });
+                    },
+                  )
+                ],
+              ),
             )
           ],
         ));

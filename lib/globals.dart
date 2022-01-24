@@ -2,8 +2,8 @@ library my_prj.globals;
 
 import 'package:flutter/material.dart';
 
-//ySilogyEnDkZinqTdUbL
-String userId = 'marioalejandre99@gmail.com';
+//marioalejandre99@gmail.com
+String userId = '';
 
 Color orange = const Color(0xFFEF774F);
 Color darkGrey = const Color(0xFF1A1B1E);
