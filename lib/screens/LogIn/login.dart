@@ -249,6 +249,7 @@ class _LogInState extends State<LogIn> {
                       'username': username,
                       'email': email,
                       'password': password,
+                      'lists': ['Watched', 'Later', 'Fav'],
                     });
                     globals.userId = email;
                     //añadir colección 'media'

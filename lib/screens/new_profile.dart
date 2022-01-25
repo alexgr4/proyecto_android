@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:http/http.dart' as http;
@@ -62,10 +63,13 @@ class _ProfileState extends State<Profile> {
   late String query;
   late int id;
   bool isMovie = true;
+  bool isWatched = false;
   List<Media> list = [];
 
   @override
   Widget build(BuildContext context) {
+    final db = FirebaseFirestore.instance;
+    final dbMedia = db.collection("/users/${globals.userId}/media");
     return StreamBuilder<List<Media>>(
       stream: userMediaSnapshots(globals.userId),
       builder: (
@@ -97,6 +101,12 @@ class _ProfileState extends State<Profile> {
           );
         }
         final media = snapshot.data!;
+        if (list.isEmpty) {
+          for (int i = 0; i < media.length; i++) {
+            list.add(media[i]);
+          }
+        }
+
         return Scaffold(
           appBar: AppBar(
             backgroundColor: globals.orange,
@@ -127,41 +137,38 @@ class _ProfileState extends State<Profile> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          list.clear();
-                        });
+                    for (int i = 0; i < globals.lists.length; i++)
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              list.clear();
+                            });
+                            if (globals.lists[i] == 'Watched' ||
+                                globals.lists[i] == 'Fav') {
+                              setState(() {
+                                isWatched = true;
+                              });
+                            } else {
+                              setState(() {
+                                isWatched = false;
+                              });
+                            }
 
-                        media.map((m) {
-                          if (m.lists.contains('Watched')) {
-                            setState(() {
-                              list.add(m);
-                            });
-                          }
-                        });
-                      },
-                      child: const Chip(
-                        label: Text('Watched'),
+                            for (int k = 0; k < media.length; k++) {
+                              if (media[k].lists.contains(globals.lists[i])) {
+                                setState(() {
+                                  list.add(media[k]);
+                                });
+                              }
+                            }
+                          },
+                          child: Chip(
+                            label: Text(globals.lists[i]),
+                          ),
+                        ),
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          list.clear();
-                        });
-                        media.map((m) {
-                          if (m.lists.contains('Later')) {
-                            setState(() {
-                              list.add(m);
-                            });
-                          }
-                        });
-                      },
-                      child: const Chip(
-                        label: Text('Plan to watch'),
-                      ),
-                    ),
                   ],
                 ),
                 Row(
@@ -221,7 +228,7 @@ class _ProfileState extends State<Profile> {
                     mainAxisSpacing: 15,
                     childAspectRatio: 0.8,
                     padding: const EdgeInsets.all(20),
-                    children: media.where((m) => m.isMovie == isMovie).map((m) {
+                    children: list.where((m) => m.isMovie == isMovie).map((m) {
                       return FutureBuilder<APIMedia>(
                           future: fetchMovieList(m.id, m.isMovie),
                           builder: (context, snapshot) {
@@ -270,6 +277,89 @@ class _ProfileState extends State<Profile> {
                                     borderRadius: const BorderRadius.all(
                                         Radius.circular(10))),
                                 margin: const EdgeInsets.only(right: 20),
+                                child: Stack(
+                                  alignment: AlignmentDirectional.bottomEnd,
+                                  children: [
+                                    if (isWatched)
+                                      StreamBuilder(
+                                          stream: mediaSnapshots(
+                                              globals.userId, mediaAPI.id),
+                                          builder: (
+                                            BuildContext context,
+                                            AsyncSnapshot<Media?> snapshot,
+                                          ) {
+                                            if (!snapshot.hasData) {
+                                              return const Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              );
+                                            }
+                                            final listInfo = snapshot.data!;
+                                            return GestureDetector(
+                                              onTap: () {
+                                                if (isMovie) {
+                                                  if (!listInfo.isFav) {
+                                                    dbMedia
+                                                        .doc('M-${mediaAPI.id}')
+                                                        .update({
+                                                      'list':
+                                                          FieldValue.arrayUnion(
+                                                              ['Fav']),
+                                                    });
+                                                  } else {
+                                                    dbMedia
+                                                        .doc('M-${mediaAPI.id}')
+                                                        .update({
+                                                      'list': FieldValue
+                                                          .arrayRemove(['Fav']),
+                                                    });
+                                                  }
+                                                } else {
+                                                  if (!listInfo.isFav) {
+                                                    dbMedia
+                                                        .doc('S-${mediaAPI.id}')
+                                                        .update({
+                                                      'list':
+                                                          FieldValue.arrayUnion(
+                                                              ['Fav']),
+                                                    });
+                                                  } else {
+                                                    dbMedia
+                                                        .doc('S-${mediaAPI.id}')
+                                                        .update({
+                                                      'list': FieldValue
+                                                          .arrayRemove(['Fav']),
+                                                    });
+                                                  }
+                                                }
+                                              },
+                                              child: Container(
+                                                height: 50,
+                                                width: 50,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      const BorderRadiusDirectional
+                                                          .only(
+                                                    bottomEnd:
+                                                        Radius.circular(10),
+                                                    topStart:
+                                                        Radius.circular(10),
+                                                  ),
+                                                  color: globals.darkGrey,
+                                                ),
+                                                child: Center(
+                                                  child: Icon(
+                                                    Icons.star,
+                                                    color: listInfo.isFav
+                                                        ? globals.orange
+                                                        : globals.lightGrey,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          }),
+                                  ],
+                                ),
                               ),
                             );
                           });

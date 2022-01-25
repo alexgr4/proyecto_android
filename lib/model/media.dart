@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:proyecto_android/globals.dart';
 
 class Media {
   final int id;
@@ -16,6 +17,7 @@ class Media {
   bool get isShow => type == 'Show';
   bool get isWatched => lists.contains('Watched');
   bool get isLater => lists.contains('Later');
+  bool get isFav => lists.contains('Fav');
 }
 
 Stream<List<Media>> userMediaSnapshots(String userId) {
