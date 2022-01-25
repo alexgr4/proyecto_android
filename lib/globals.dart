@@ -12,4 +12,11 @@ Color grey = const Color(0xFF27292e);
 int search_length = 20;
 late int cast_length;
 late int streaming_length;
-List<String> lists = ['Watched', 'Later', 'Fav'];
+List<String> lists = [
+  'Watched',
+  'Later',
+  'Fav',
+  'Marvel',
+  'Christmas',
+  'Winning award'
+];

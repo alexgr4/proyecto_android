@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:proyecto_android/globals.dart';
 
 class Media {
   final int id;
   final String type;
   final bool fav;
   final List<String> lists;
+  String custom = '';
 
   Media.fromFirestore(Map<String, dynamic> data)
       : id = data['id'],
@@ -18,6 +18,7 @@ class Media {
   bool get isWatched => lists.contains('Watched');
   bool get isLater => lists.contains('Later');
   bool get isFav => lists.contains('Fav');
+  bool get isCustomList => lists.contains(custom);
 }
 
 Stream<List<Media>> userMediaSnapshots(String userId) {

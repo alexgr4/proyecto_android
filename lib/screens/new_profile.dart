@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
 import 'package:proyecto_android/model/media.dart';
 import 'package:proyecto_android/model/user.dart';
@@ -65,6 +66,7 @@ class _ProfileState extends State<Profile> {
   bool isMovie = true;
   bool isWatched = false;
   List<Media> list = [];
+  String selected = '';
 
   @override
   Widget build(BuildContext context) {
@@ -134,42 +136,57 @@ class _ProfileState extends State<Profile> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (int i = 0; i < globals.lists.length; i++)
-                      Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              list.clear();
-                            });
-                            if (globals.lists[i] == 'Watched' ||
-                                globals.lists[i] == 'Fav') {
+                SizedBox(
+                  height: 60,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      for (int i = 0; i < globals.lists.length; i++)
+                        Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: GestureDetector(
+                            onTap: () {
                               setState(() {
-                                isWatched = true;
+                                list.clear();
+                                selected = globals.lists[i];
                               });
-                            } else {
-                              setState(() {
-                                isWatched = false;
-                              });
-                            }
-
-                            for (int k = 0; k < media.length; k++) {
-                              if (media[k].lists.contains(globals.lists[i])) {
+                              if (globals.lists[i] == 'Watched' ||
+                                  globals.lists[i] == 'Fav') {
                                 setState(() {
-                                  list.add(media[k]);
+                                  isWatched = true;
+                                });
+                              } else {
+                                setState(() {
+                                  isWatched = false;
                                 });
                               }
-                            }
-                          },
-                          child: Chip(
-                            label: Text(globals.lists[i]),
+
+                              for (int k = 0; k < media.length; k++) {
+                                if (media[k].lists.contains(globals.lists[i])) {
+                                  setState(() {
+                                    list.add(media[k]);
+                                  });
+                                }
+                              }
+                            },
+                            child: Chip(
+                              backgroundColor: selected == globals.lists[i]
+                                  ? globals.orange
+                                  : globals.lightGrey,
+                              label: Text(
+                                globals.lists[i],
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: selected == globals.lists[i]
+                                      ? Colors.white
+                                      : globals.darkGrey,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,

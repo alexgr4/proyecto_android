@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_android/model/media.dart';
+import 'package:proyecto_android/screens/add_list.dart';
 import '../globals.dart' as globals;
 import 'dart:async';
 import 'dart:convert';
@@ -295,26 +296,38 @@ class _TVDetailsState extends State<TVDetails> {
                                                     ),
                                                   ),
                                                 ),
-                                                SizedBox(
-                                                  width: 100,
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: const [
-                                                      Icon(
-                                                        Icons.add,
-                                                        size: 32,
-                                                        color: Colors.white,
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                        builder: (context) {
+                                                          return AddList(
+                                                              id: widget.id);
+                                                        },
                                                       ),
-                                                      Text(
-                                                        'Add to list...',
-                                                        style: TextStyle(
+                                                    );
+                                                  },
+                                                  child: SizedBox(
+                                                    width: 100,
+                                                    child: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: const [
+                                                        Icon(
+                                                          Icons.add,
+                                                          size: 32,
                                                           color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.w500,
                                                         ),
-                                                      ),
-                                                    ],
+                                                        Text(
+                                                          'Add to list...',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                               ]),
@@ -421,25 +434,38 @@ class _TVDetailsState extends State<TVDetails> {
                                                 ),
                                               ),
                                             ),
-                                            SizedBox(
-                                              width: 100,
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: const [
-                                                  Icon(
-                                                    Icons.add,
-                                                    size: 32,
-                                                    color: Colors.white,
+                                            GestureDetector(
+                                              onTap: () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: (context) {
+                                                      return AddList(
+                                                          id: widget.id);
+                                                    },
                                                   ),
-                                                  Text(
-                                                    'Add to list...',
-                                                    style: TextStyle(
+                                                );
+                                              },
+                                              child: SizedBox(
+                                                width: 100,
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: const [
+                                                    Icon(
+                                                      Icons.add,
+                                                      size: 32,
                                                       color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.w500,
                                                     ),
-                                                  ),
-                                                ],
+                                                    Text(
+                                                      'Add to list...',
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                           ]);
