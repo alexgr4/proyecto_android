@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:provider/provider.dart';
+import 'package:proyecto_android/model/firebase_user.dart';
 import 'package:proyecto_android/model/user.dart';
+import 'package:proyecto_android/screens/LogIn/auth.dart';
 import 'package:proyecto_android/screens/discover_menu.dart';
 import '../../globals.dart' as globals;
 
@@ -77,6 +80,7 @@ class _LogInState extends State<LogIn> {
   }
 
   Form logIn() {
+    final authService = Provider.of<AuthService>(context);
     return Form(
         key: _formKeyLogIn,
         child: Column(
@@ -125,29 +129,7 @@ class _LogInState extends State<LogIn> {
                     )),
                 onPressed: () async {
                   if (_formKeyLogIn.currentState!.validate()) {
-                    debugPrint(email);
-                    debugPrint(password);
-                    userSnapshots(email);
-
-                    /* StreamBuilder(
-                                stream: userSnapshots(email),
-                                builder: (
-                                  BuildContext context,
-                                  AsyncSnapshot<User?> snapshot,
-                                ) {
-                                  if (!snapshot.hasData) {
-                                    return const Center(
-                                      child:
-                                          Text('user or password incorrect'),
-                                    );
-                                  }
-
-                                  globals.userId = email;
-                                  return Container(
-                                      width: 100,
-                                      height: 100,
-                                      color: Colors.white);
-                                }); */
+                    authService.signInWithEmailAndPassword(email, password);
                   }
                 },
                 child: const Text('Log In')),
@@ -179,6 +161,7 @@ class _LogInState extends State<LogIn> {
   Form signUp() {
     final db = FirebaseFirestore.instance;
     final users = db.collection("/users");
+    final authService = Provider.of<AuthService>(context);
 
     return Form(
         key: _formKeySignUp,
@@ -248,22 +231,12 @@ class _LogInState extends State<LogIn> {
                     users.doc(email).set({
                       'username': username,
                       'email': email,
-                      'password': password,
                       'lists': ['Watched', 'Later', 'Fav'],
                     });
-                    globals.userId = email;
-                    //añadir colección 'media'
-                    /* FirebaseFirestore.instance
-                        .collection("users/${globals.userId}/media")
-                        .doc('S-1420')
-                        .set({
-                      'type': 'Show',
-                      'id': '1420',
-                      'list': [],
-                      'fav': false
-                    }); */
 
-                    globals.userId = email;
+                    await authService.createUserWithEmailAndPassword(
+                        email, password);
+                    /* Navigator.pop(context); */
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) {

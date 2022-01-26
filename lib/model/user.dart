@@ -1,18 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 
-class User {
-  final String uname;
-  final String pass;
+class MyUser {
+  final String username;
+  final List<String> lists;
   final String email;
 
-  User.fromFirestore(Map<String, dynamic> data)
-      : uname = data['username'],
-        pass = data['password'],
+  MyUser.fromFirestore(Map<String, dynamic> data)
+      : username = data['username'],
+        lists = (data['lists'] as List).cast<String>(),
         email = data['email'];
 }
 
-Stream<User?> userSnapshots(String email) {
+Stream<MyUser?> userSnapshots(String? email) {
   final db = FirebaseFirestore.instance;
 
   return db
@@ -25,6 +25,6 @@ Stream<User?> userSnapshots(String email) {
       return null;
     }
 
-    return User.fromFirestore(querysnap.docs[0].data());
+    return MyUser.fromFirestore(querysnap.docs[0].data());
   });
 }

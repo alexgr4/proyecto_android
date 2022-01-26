@@ -2,12 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:proyecto_android/model/media.dart';
 import 'package:proyecto_android/model/user.dart';
+import 'package:proyecto_android/screens/LogIn/auth.dart';
 import 'package:proyecto_android/screens/movie_details.dart';
 import 'package:proyecto_android/screens/tv_details.dart';
 
@@ -70,6 +73,7 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
     final db = FirebaseFirestore.instance;
     final dbMedia = db.collection("/users/${globals.userId}/media");
     return StreamBuilder<List<Media>>(
@@ -86,7 +90,7 @@ class _ProfileState extends State<Profile> {
                 stream: userSnapshots(globals.userId),
                 builder: (
                   BuildContext context,
-                  AsyncSnapshot<User?> snapshot,
+                  AsyncSnapshot<MyUser?> snapshot,
                 ) {
                   if (!snapshot.hasData) {
                     return const Center(
@@ -95,7 +99,7 @@ class _ProfileState extends State<Profile> {
                   }
                   final docSnapshot = snapshot.data;
 
-                  return Text(docSnapshot!.uname);
+                  return Text(docSnapshot!.username);
                 },
               ),
               centerTitle: true,
@@ -112,23 +116,35 @@ class _ProfileState extends State<Profile> {
         return Scaffold(
           appBar: AppBar(
             backgroundColor: globals.orange,
-            title: StreamBuilder(
-              stream: userSnapshots(globals.userId),
-              builder: (
-                BuildContext context,
-                AsyncSnapshot<User?> snapshot,
-              ) {
-                if (!snapshot.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                final docSnapshot = snapshot.data;
+            title: Row(
+              children: [
+                StreamBuilder(
+                  stream: userSnapshots(globals.userId),
+                  builder: (
+                    BuildContext context,
+                    AsyncSnapshot<MyUser?> snapshot,
+                  ) {
+                    if (!snapshot.hasData) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    final docSnapshot = snapshot.data;
 
-                return Text(docSnapshot!.uname);
-              },
+                    return Text(docSnapshot!.username);
+                  },
+                ),
+                const Spacer(),
+                GestureDetector(
+                    onTap: () async {
+                      await authService.signOut();
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [Icon(Icons.logout), Text('Log Out')],
+                    ))
+              ],
             ),
-            centerTitle: true,
           ),
           backgroundColor: globals.darkGrey,
           body: Padding(

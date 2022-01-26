@@ -21,7 +21,7 @@ class Media {
   bool get isCustomList => lists.contains(custom);
 }
 
-Stream<List<Media>> userMediaSnapshots(String userId) {
+Stream<List<Media>> userMediaSnapshots(String? userId) {
   final db = FirebaseFirestore.instance;
   return db.collection('/users/$userId/media').snapshots().map((querysnap) {
     List<Media> media = [];
@@ -32,7 +32,7 @@ Stream<List<Media>> userMediaSnapshots(String userId) {
   });
 }
 
-Stream<Media?> mediaSnapshots(String userId, int mediaId) {
+Stream<Media?> mediaSnapshots(String? userId, int mediaId) {
   final db = FirebaseFirestore.instance;
   return db
       .collection('/users/$userId/media')

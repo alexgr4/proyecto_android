@@ -1,9 +1,10 @@
 library my_prj.globals;
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 //marioalejandre99@gmail.com
-String userId = 'marioalejandre99@gmail.com';
+String? userId = FirebaseAuth.instance.currentUser?.email;
 
 Color orange = const Color(0xFFEF774F);
 Color darkGrey = const Color(0xFF1A1B1E);
