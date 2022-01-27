@@ -3,7 +3,6 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:proyecto_android/model/media.dart';
 import 'package:proyecto_android/model/user.dart';
-import 'package:proyecto_android/restart.dart';
 
 import '../globals.dart' as globals;
 
