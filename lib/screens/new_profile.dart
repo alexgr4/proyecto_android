@@ -100,7 +100,14 @@ class _ProfileState extends State<Profile> {
                   }
                   final docSnapshot = snapshot.data;
 
-                  return Text(docSnapshot!.username);
+                  return GestureDetector(
+                      onTap: () async {
+                        await authService.signOut();
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [Icon(Icons.logout), Text('Log Out')],
+                      ));
                 },
               ),
               centerTitle: true,
