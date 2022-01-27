@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:proyecto_android/screens/add_list.dart';
 
 class MyUser {
   final String username;

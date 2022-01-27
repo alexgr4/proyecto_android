@@ -121,8 +121,9 @@ Future<List<Streaming>> fetchStreaming(int id) async {
     final spain = results['ES'];
     final stream = spain['flatrate'];
     globals.streaming_length = stream.length;
+
     return stream
-        .map((movieJson) => Streaming.fromJson(movieJson))
+        .map((movieJson) => Streaming?.fromJson(movieJson))
         .toList()
         .cast<Streaming>();
   } else {
@@ -305,26 +306,40 @@ class _MovieDetailsState extends State<MovieDetails> {
                                                       ),
                                                     );
                                                   },
-                                                  child: SizedBox(
-                                                    width: 100,
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: const [
-                                                        Icon(
-                                                          Icons.add,
-                                                          size: 32,
-                                                          color: Colors.white,
-                                                        ),
-                                                        Text(
-                                                          'Add to list...',
-                                                          style: TextStyle(
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      media
+                                                          .doc('M-${widget.id}')
+                                                          .set({
+                                                        'list': [],
+                                                        'type': 'Movie',
+                                                        'id': widget.id,
+                                                        'fav': false,
+                                                      });
+                                                    },
+                                                    child: SizedBox(
+                                                      width: 100,
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: const [
+                                                          Icon(
+                                                            Icons.add,
+                                                            size: 32,
                                                             color: Colors.white,
-                                                            fontWeight:
-                                                                FontWeight.w500,
                                                           ),
-                                                        ),
-                                                      ],
+                                                          Text(
+                                                            'Add to list...',
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
                                                 ),

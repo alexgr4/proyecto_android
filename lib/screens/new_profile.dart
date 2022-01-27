@@ -70,6 +70,7 @@ class _ProfileState extends State<Profile> {
   bool isWatched = false;
   List<Media> list = [];
   String selected = '';
+  bool allMediaFlag = false;
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +108,7 @@ class _ProfileState extends State<Profile> {
           );
         }
         final media = snapshot.data!;
-        if (list.isEmpty) {
+        if (list.isEmpty && allMediaFlag == false) {
           for (int i = 0; i < media.length; i++) {
             list.add(media[i]);
           }
@@ -154,54 +155,76 @@ class _ProfileState extends State<Profile> {
               children: [
                 SizedBox(
                   height: 60,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      for (int i = 0; i < globals.lists.length; i++)
-                        Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                list.clear();
-                                selected = globals.lists[i];
-                              });
-                              if (globals.lists[i] == 'Watched' ||
-                                  globals.lists[i] == 'Fav') {
-                                setState(() {
-                                  isWatched = true;
-                                });
-                              } else {
-                                setState(() {
-                                  isWatched = false;
-                                });
-                              }
+                  child: StreamBuilder(
+                    stream: userSnapshots(globals.userId),
+                    builder: (
+                      BuildContext context,
+                      AsyncSnapshot<MyUser?> snapshot,
+                    ) {
+                      if (!snapshot.hasData) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      final docSnapshot = snapshot.data;
 
-                              for (int k = 0; k < media.length; k++) {
-                                if (media[k].lists.contains(globals.lists[i])) {
-                                  setState(() {
-                                    list.add(media[k]);
-                                  });
-                                }
-                              }
-                            },
-                            child: Chip(
-                              backgroundColor: selected == globals.lists[i]
-                                  ? globals.orange
-                                  : globals.lightGrey,
-                              label: Text(
-                                globals.lists[i],
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  color: selected == globals.lists[i]
-                                      ? Colors.white
-                                      : globals.darkGrey,
+                      return Center(
+                        child: ListView(
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          children: [
+                            for (int i = 0; i < docSnapshot!.lists.length; i++)
+                              Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      list.clear();
+                                      selected = docSnapshot.lists[i];
+                                      allMediaFlag = true;
+                                    });
+                                    if (docSnapshot.lists[i] == 'Watched' ||
+                                        docSnapshot.lists[i] == 'Fav') {
+                                      setState(() {
+                                        isWatched = true;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        isWatched = false;
+                                      });
+                                    }
+
+                                    for (int k = 0; k < media.length; k++) {
+                                      if (media[k]
+                                          .lists
+                                          .contains(docSnapshot.lists[i])) {
+                                        setState(() {
+                                          list.add(media[k]);
+                                        });
+                                      }
+                                    }
+                                  },
+                                  child: Chip(
+                                    backgroundColor:
+                                        selected == docSnapshot.lists[i]
+                                            ? globals.orange
+                                            : globals.lightGrey,
+                                    label: Text(
+                                      docSnapshot.lists[i],
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: selected == docSnapshot.lists[i]
+                                            ? Colors.white
+                                            : globals.darkGrey,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
+                          ],
                         ),
-                    ],
+                      );
+                    },
                   ),
                 ),
                 Row(

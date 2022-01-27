@@ -307,26 +307,40 @@ class _TVDetailsState extends State<TVDetails> {
                                                       ),
                                                     );
                                                   },
-                                                  child: SizedBox(
-                                                    width: 100,
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: const [
-                                                        Icon(
-                                                          Icons.add,
-                                                          size: 32,
-                                                          color: Colors.white,
-                                                        ),
-                                                        Text(
-                                                          'Add to list...',
-                                                          style: TextStyle(
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      media
+                                                          .doc('S-${widget.id}')
+                                                          .set({
+                                                        'list': [],
+                                                        'type': 'Show',
+                                                        'id': widget.id,
+                                                        'fav': false,
+                                                      });
+                                                    },
+                                                    child: SizedBox(
+                                                      width: 100,
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: const [
+                                                          Icon(
+                                                            Icons.add,
+                                                            size: 32,
                                                             color: Colors.white,
-                                                            fontWeight:
-                                                                FontWeight.w500,
                                                           ),
-                                                        ),
-                                                      ],
+                                                          Text(
+                                                            'Add to list...',
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
