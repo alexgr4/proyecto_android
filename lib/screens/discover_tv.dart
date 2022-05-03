@@ -239,9 +239,9 @@ class DiscoverTV extends StatelessWidget {
               "&sort_by=popularity.desc&with_watch_providers=8&watch_region=ES",
         ),
         const Section(
-          title: "HBO",
+          title: "HBO Max",
           list:
-              "&sort_by=popularity.desc&with_watch_providers=118&watch_region=ES",
+              "&sort_by=popularity.desc&with_watch_providers=384&watch_region=ES",
         ),
         const Section(
           title: "Disney+",
